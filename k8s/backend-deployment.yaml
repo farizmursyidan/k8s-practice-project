@@ -20,10 +20,22 @@ spec:
             - containerPort: 5000
           env:
             - name: DB_HOST
-              value: postgres-service
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_HOST
             - name: DB_NAME
-              value: mydb
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_NAME
             - name: DB_USER
-              value: myuser
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_USER
             - name: DB_PASSWORD
-              value: mypassword
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_PASSWORD
