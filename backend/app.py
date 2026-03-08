@@ -29,5 +29,52 @@ def db_check():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route("/init-db")
+def init_db():
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS visitors (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL
+            );
+        """)
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({"status": "success", "message": "Table created"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route("/add-visitor/<name>")
+def add_visitor(name):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("INSERT INTO visitors (name) VALUES (%s);", (name,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({"status": "success", "message": f"Added {name}"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route("/visitors")
+def visitors():
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id, name FROM visitors ORDER BY id;")
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return jsonify({
+            "status": "success",
+            "data": [{"id": r[0], "name": r[1]} for r in rows]
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
