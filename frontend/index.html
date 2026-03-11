@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K8s Visitor App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      max-width: 700px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 8px;
+    }
+    ul {
+      margin-top: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .row {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kubernetes Visitor App</h1>
+  <p>Frontend → Backend → Postgres</p>
+
+  <div class="row">
+    <input type="text" id="visitorName" placeholder="Enter visitor name" />
+    <button onclick="addVisitor()">Add Visitor</button>
+    <button onclick="loadVisitors()">Refresh List</button>
+  </div>
+
+  <h2>Visitors</h2>
+  <ul id="visitorList"></ul>
+
+  <script>
+    const API_BASE = "/api";
+
+    async function loadVisitors() {
+      try {
+        const res = await fetch(`${API_BASE}/visitors`);
+        const data = await res.json();
+
+        const list = document.getElementById("visitorList");
+        list.innerHTML = "";
+
+        if (data.data) {
+          data.data.forEach(visitor => {
+            const li = document.createElement("li");
+            li.textContent = `${visitor.id} - ${visitor.name}`;
+            list.appendChild(li);
+          });
+        }
+      } catch (err) {
+        alert("Failed to load visitors: " + err.message);
+      }
+    }
+
+    async function addVisitor() {
+      const input = document.getElementById("visitorName");
+      const name = input.value.trim();
+
+      if (!name) {
+        alert("Please enter a name");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/add-visitor/${encodeURIComponent(name)}`);
+        const data = await res.json();
+
+        if (data.status === "success") {
+          input.value = "";
+          loadVisitors();
+        } else {
+          alert("Failed: " + data.message);
+        }
+      } catch (err) {
+        alert("Failed to add visitor: " + err.message);
+      }
+    }
+
+    loadVisitors();
+  </script>
+</body>
+</html>
