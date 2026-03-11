@@ -39,7 +39,6 @@ spec:
                 secretKeyRef:
                   name: app-secret
                   key: DB_PASSWORD
-
           readinessProbe:
             httpGet:
               path: /readyz
@@ -48,7 +47,6 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 3
-
           livenessProbe:
             httpGet:
               path: /healthz
@@ -57,3 +55,10 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
