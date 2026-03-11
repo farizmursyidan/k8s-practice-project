@@ -16,6 +16,23 @@ def get_connection():
 def home():
     return {"message": "Hello from Kubernetes backend"}
 
+@app.route("/healthz")
+def healthz():
+    return jsonify({"status": "ok"}), 200
+
+@app.route("/readyz")
+def readyz():
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT 1;")
+        cur.fetchone()
+        cur.close()
+        conn.close()
+        return jsonify({"status": "ready"}), 200
+    except Exception as e:
+        return jsonify({"status": "not ready", "message": str(e)}), 500
+
 @app.route("/db-check")
 def db_check():
     try:
